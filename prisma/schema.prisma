@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Scan {
+  id              String          @id @default(cuid())
+  repoUrl         String
+  branch          String          @default("main")
+  source          String          // "DASHBOARD_PULL" or "GITHUB_ACTION"
+  status          String          @default("PENDING") // "PENDING", "COMPLETED", "FAILED"
+  totalFiles      Int             @default(0)
+  vulnerabilities Vulnerability[]
+  createdAt       DateTime        @default(now())
+}
+
+model Vulnerability {
+  id          String   @id @default(cuid())
+  scanId      String
+  scan        Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  filePath    String
+  lineStart   Int?
+  lineEnd     Int?
+  title       String
+  severity    String   
+  cwe         String?  
+  description String
+  remediation String
+  rawCode     String?
+  createdAt   DateTime @default(now())
+}
